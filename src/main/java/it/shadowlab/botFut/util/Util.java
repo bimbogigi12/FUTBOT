@@ -150,8 +150,13 @@ public class Util {
 
 	public static int convertToInt(String read) {
 		read = read.replaceAll("Z", "7");
+		read = read.replaceAll("e", "9");
 		read = read.replaceAll("n", "11");
+		read = read.replaceAll("m", "111");
 		read = read.replaceAll(" ", "");
+		read = read.replaceAll("lll", "111");
+		read = read.replaceAll("©", "");
+
 		return Integer.valueOf(read.replace(",", "").replace(".", ""));
 	}
 
@@ -193,6 +198,9 @@ public class Util {
 		playerName = playerName.replaceAll("ì", "i");
 		playerName = playerName.replaceAll("à", "a");
 		playerName = playerName.replaceAll("ù", "u");
+		playerName = playerName.replaceAll("í", "i");
+		playerName = playerName.replaceAll("ö", "o");
+		playerName = playerName.replaceAll("ë", "e");
 		playerName = playerName.replace(")", "");
 		playerName = playerName.replace("|", "");
 		playerName = playerName.replace("*", "");
@@ -201,9 +209,10 @@ public class Util {
 		playerName = playerName.replace("‘", "");
 		playerName = playerName.replace("{", "");
 		playerName = playerName.replace("> ", "");
+		playerName = playerName.replace("É ", "E");
 		playerName = playerName.replaceAll("_", "");
 
 		return playerName.trim();
 	}
-	
+
 }
