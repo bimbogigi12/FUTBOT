@@ -47,7 +47,7 @@ public class Bot extends Thread {
 
 	boolean debug = false;
 	boolean filterPlayerByRange = false;
-	
+
 	boolean playersLoaded = false;
 	boolean isResellingPlayersByMarket = false;
 
@@ -72,10 +72,6 @@ public class Bot extends Thread {
 			if (!debug) {
 				allPlayers = FutBinUtil.loadPlayers(robot, rectangles, positions);
 
-				players = allPlayers.stream().filter(p -> p.getMarketValue() >= minMarketValue).collect(Collectors.toList());
-
-				players = players.stream().filter(p -> p.getOverall() >= minOverall).collect(Collectors.toList());
-				
 			} else {
 
 				Player p = new Player();
@@ -129,7 +125,8 @@ public class Bot extends Thread {
 				p = new Player();
 				p.setName("neville");
 				p.setBidToBuy(3150);
-				p.setBidToSell(3850);https://ww
+				p.setBidToSell(3850);
+				https: // ww
 				p.setBidToSellNow(4200);
 				players.add(p);
 				allPlayers.add(p);
@@ -157,7 +154,7 @@ public class Bot extends Thread {
 				p.setBidToSellNow(5300);
 				players.add(p);
 				allPlayers.add(p);
-				
+
 				p = new Player();
 				p.setName("Magull");
 				p.setBidToBuy(10000);
@@ -165,7 +162,7 @@ public class Bot extends Thread {
 				p.setBidToSellNow(13200);
 				players.add(p);
 				allPlayers.add(p);
-				
+
 				p = new Player();
 				p.setName("kimmich");
 				p.setBidToBuy(16000);
@@ -173,7 +170,7 @@ public class Bot extends Thread {
 				p.setBidToSellNow(22000);
 				players.add(p);
 				allPlayers.add(p);
-				
+
 				p = new Player();
 				p.setName("Alex Morgan");
 				p.setBidToBuy(27000);
@@ -181,8 +178,7 @@ public class Bot extends Thread {
 				p.setBidToSellNow(36000);
 				players.add(p);
 				allPlayers.add(p);
-				
-				
+
 				p = new Player();
 				p.setName("Maignan");
 				p.setBidToBuy(10000);
@@ -190,8 +186,7 @@ public class Bot extends Thread {
 				p.setBidToSellNow(13000);
 				players.add(p);
 				allPlayers.add(p);
-				
-				
+
 				p = new Player();
 				p.setName("Maignan");
 				p.setBidToBuy(54000);
@@ -206,8 +201,8 @@ public class Bot extends Thread {
 				 */
 
 			}
+
 			
-			players = removeBlackList(players);
 			playersLoaded = true;
 			lastLoadPlayers = new Date();
 			Util.click(robot, positions.get("LOGIN"));
@@ -215,25 +210,24 @@ public class Bot extends Thread {
 		}
 
 	}
-	
-	private List<Player> removeBlackList(List<Player> players){
+
+	private List<Player> removeBlackList(List<Player> players) {
 		List<String> blackList = Stream.of("BARNES", "SMITH").collect(Collectors.toList());
-		
-		List<Player> playersFiltered  = new LinkedList();
+
+		List<Player> playersFiltered = new LinkedList();
 
 		for (Player p : players) {
-		
+
 			boolean isBlacked = false;
 			for (String blacked : blackList) {
 				isBlacked |= p.getName().toUpperCase().contains(blacked.toUpperCase());
 			}
-			
+
 			if (!isBlacked) {
 				playersFiltered.add(p);
 			}
 		}
 
-		
 		return playersFiltered;
 	}
 
@@ -251,20 +245,20 @@ public class Bot extends Thread {
 
 				readCurrentMoney();
 
-				getPlayerToBid();
+				//getPlayerToBid();
 
 				if (selectedPlayer != null) {
 					auctPlayer();
 
 				}
 
-				// checkTransferd();
+				checkTransferd();
 
 				if (lastRelist == null || new Date().getTime() - lastRelist.getTime() > 1000 * 60 * 30) {
 					relistPlayer();
 				}
 
-				//unlockScreen();
+				unlockScreen();
 
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -316,7 +310,7 @@ public class Bot extends Thread {
 		if (StringUtils.isNotEmpty(scurrentMoney) && currentMoney != Util.convertToInt(scurrentMoney)) {
 			currentMoney = Util.convertToInt(scurrentMoney);
 			logger.debug("Current money: " + currentMoney);
-			// System.out.println("Current money: " + scurrentMoney);
+			// System.out.println("Current money: " + scurrentMoney); 
 		}
 	}
 
@@ -325,6 +319,12 @@ public class Bot extends Thread {
 			if (selectedPlayer == null) {
 				List<Player> playerBiddable = new ArrayList<Player>();
 
+				players = allPlayers.stream().filter(p -> p.getMarketValue() >= minMarketValue).collect(Collectors.toList());
+
+				players = players.stream().filter(p -> p.getOverall() >= minOverall).collect(Collectors.toList());
+				
+				players = removeBlackList(players);
+				
 				int maxCurrency = currentMoney;
 
 				final AtomicInteger minCurrency = new AtomicInteger(maxCurrency);
@@ -397,7 +397,7 @@ public class Bot extends Thread {
 			logger.debug("bid for " + selectedPlayer.getName() + " found: " + firstPlayerName);
 
 			Util.waitAction(3000);
-			if (selectedPlayer.getName().toLowerCase().replace(" ", "").contains(Util.normalizePlauerName(firstPlayerName).toLowerCase())) {
+			if (selectedPlayer.getName().toLowerCase().replace(" ", "").contains(Util.normalizePlauerName(firstPlayerName).replace(" ", "").toLowerCase())) {
 				if (StringUtils.isNotEmpty(Util.Read(robot, rectangles.get("LAST_BID"), false))) {
 
 					int actualbid = Util.convertToInt(Util.Read(robot, rectangles.get("LAST_BID"), false).trim());
@@ -431,9 +431,9 @@ public class Bot extends Thread {
 	}
 
 	private void relistPlayer() {
-		
+
 		if (!isResellingPlayersByMarket)
-		checkTransferd();
+			checkTransferd();
 		// System.out.println("Re listing player");
 		logger.debug("Re listing player");
 		// click Transfer
@@ -441,29 +441,24 @@ public class Bot extends Thread {
 		Util.waitAction(500);
 		Util.click(robot, positions.get("TRANSFER_LIST"));
 		Util.waitAction(500);
-		
+
 		Util.click(robot, positions.get("CLEAR_SOLD"));
 		Util.waitAction(300);
 		if (playersLoaded) {
 			isResellingPlayersByMarket = true;
 			logger.debug("Re listing by market");
-			
-			
-			
+
 			String playerSold = Util.normalizePlauerName(Util.Read(robot, rectangles.get("UNSOLD_ITEM"), false).replace("\n", ""));
-			
-			logger.debug("Relist: "+playerSold);
-			
+
+			logger.debug("Relist: " + playerSold);
+
 			List<Player> playerToSellList = new ArrayList<>();
 			if (!StringUtils.isEmpty(playerSold)) {
-				playerToSellList = allPlayers.stream().filter(p -> 
-			Util.normalizePlauerName(p.getName().toUpperCase()).contains(playerSold.replaceAll(" ", "").toUpperCase())).collect(Collectors.toList());
+				playerToSellList = allPlayers.stream().filter(p -> Util.normalizePlauerName(p.getName().toUpperCase()).contains(playerSold.replaceAll(" ", "").toUpperCase())).collect(Collectors.toList());
 			}
 
-			if (playerToSellList.size() > 0) { 
-			
-				
-				
+			if (playerToSellList.size() > 0) {
+
 				Player playerToSell = playerToSellList.get(0);
 				logger.debug(playerToSell.toString());
 				Util.click(robot, positions.get("UNSOLD_ITEM"));
@@ -494,7 +489,7 @@ public class Bot extends Thread {
 					Util.waitAction(300);
 					relistPlayer();
 				}
-				playersLoaded = false;	
+				playersLoaded = false;
 			}
 		} else {
 			logger.debug("Re listing all");
@@ -577,13 +572,23 @@ public class Bot extends Thread {
 	}
 
 	private boolean canBeTransferedPlayer(int maxCheck) {
-		String selleingP = Util.Read(robot, rectangles.get("TRANSFER_ITEM"), false).replace("\"", "").replace("]", "").replace("|", "").replace("]00"
-				+ "", "").replace("\n", "").replace("l", "1");
+		String selleingP = Util.Read(robot, rectangles.get("TRANSFER_ITEM"), false).replace("\"", "").replace("]", "").replace("|", "").replace("]00" + "", "").replace("\n", "").replace("l", "1");
 		selleingP = selleingP.replace("o", "9");
 		int currentSelling = 0;
 		try {
-		 currentSelling = Util.convertToInt(selleingP.trim());
-		} catch(Exception ex) {
+			currentSelling = Util.convertToInt(selleingP.trim());
+			
+			if (currentSelling <50) {
+				minOverall = 84;
+			} else if (currentSelling <70) {
+				minOverall = 85;
+			} else if (currentSelling <90) {
+				minOverall = 86;
+			} else {
+				minOverall = 87;
+			}
+			
+		} catch (Exception ex) {
 			ex.printStackTrace();
 			return false;
 		}
@@ -615,14 +620,23 @@ public class Bot extends Thread {
 	private void clearExpired() {
 		boolean foundExpired = false;
 
+		Util.click(robot, positions.get("TRANSFER"));
+		Util.waitAction(500);
+
+		Util.click(robot, positions.get("TRANSFER_TARGET"));
+		Util.waitAction(500);
+
 		int offset = 0;
 
 		Rectangle clearExp = rectangles.get("CLEAR_EXPIRED");
+		logger.debug("Clearing expired");
 
 		while (!foundExpired && offset < 2000) {
 			Rectangle readRect = new Rectangle((int) clearExp.getX(), (int) clearExp.getY() + offset, (int) clearExp.getWidth(), (int) clearExp.getHeight());
 
 			String clearExpired = Util.Read(robot, readRect, false);
+
+			// logger.debug("read: "+clearExpired);
 
 			if (clearExpired.toLowerCase().contains("clear expired")) {
 				// System.out.println("clear expired: " + (int) clearExp.getY() + offset);
@@ -631,7 +645,7 @@ public class Bot extends Thread {
 				Util.waitAction(300);
 
 			} else {
-				offset += 20;
+				offset += 10;
 			}
 		}
 	}

@@ -25,11 +25,11 @@ public class Costant {
 		
 		SIZE3840_2160.put("CURRENT_MONEY", new Rectangle(3475, 173, 120, 27));
 		SIZE3840_2160.put("LAST_BID", new Rectangle(2250, 900, 170, 40));
-		SIZE3840_2160.put("TRANSFER_ITEM", new Rectangle(2130, 340, 80, 50));
+		SIZE3840_2160.put("TRANSFER_ITEM", new Rectangle(2130, 340, 60, 50));
 		
 		SIZE3840_2160.put("WON_ITEMS", new Rectangle(1360, 600, 200, 40));
 		SIZE3840_2160.put("PLAYER_TO_SELL", new Rectangle(1470, 670, 200, 30));
-		SIZE3840_2160.put("CLEAR_EXPIRED", new Rectangle(2070, 900, 120, 40));
+		SIZE3840_2160.put("CLEAR_EXPIRED", new Rectangle(2090, 900, 120, 30));
 		SIZE3840_2160.put("FIRST_BID", new Rectangle(1470, 392, 120, 20));
 		SIZE3840_2160.put("UNSOLD_ITEM", new Rectangle(1470, 660, /*200, 200));*/120, 20));
 		

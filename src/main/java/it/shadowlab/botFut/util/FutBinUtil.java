@@ -39,7 +39,6 @@ public class FutBinUtil {
 
 		// openFutBin(robot);
 
-		logger.info("test");
 
 		Date start = new Date();
 
@@ -332,6 +331,9 @@ public class FutBinUtil {
 			isValid = false;
 		}*/
 
+		if (Integer.valueOf(marketValue) < 1000)
+			isValid = false;
+		
 		if (readFromOCr) {
 			switch (Integer.valueOf(overall)) {
 			case 84:
