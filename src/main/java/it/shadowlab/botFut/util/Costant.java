@@ -24,7 +24,7 @@ public class Costant {
 
 		
 		SIZE3840_2160.put("CURRENT_MONEY", new Rectangle(3475, 173, 120, 27));
-		SIZE3840_2160.put("LAST_BID", new Rectangle(2250, 900, 170, 40));
+		SIZE3840_2160.put("LAST_BID", new Rectangle(2250, 920, 170, 40));
 		SIZE3840_2160.put("TRANSFER_ITEM", new Rectangle(2130, 340, 60, 50));
 		
 		SIZE3840_2160.put("WON_ITEMS", new Rectangle(1360, 600, 200, 40));
@@ -47,7 +47,7 @@ public class Costant {
 		POSITION3840_2160.put("TRANSFER_TARGET", new Dimension(630, 1600));
 		POSITION3840_2160.put("LIST_TO_TRANSFER", new Dimension(910, 2250));
 		POSITION3840_2160.put("START_PRICE", new Dimension(1025, 2300));
-		POSITION3840_2160.put("BUY_NOW", new Dimension(1100, 2300));
+		POSITION3840_2160.put("BUY_NOW", new Dimension(1130, 2300));
 		POSITION3840_2160.put("TRANSFER_PLAYER", new Dimension(1235, 2250));
 		POSITION3840_2160.put("UNSOLD_ITEM", new Dimension(650, 1520));
 		POSITION3840_2160.put("CLEAR_SOLD", new Dimension(395, 2110));

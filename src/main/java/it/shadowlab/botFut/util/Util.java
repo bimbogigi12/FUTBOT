@@ -209,7 +209,8 @@ public class Util {
 		playerName = playerName.replace("‘", "");
 		playerName = playerName.replace("{", "");
 		playerName = playerName.replace("> ", "");
-		playerName = playerName.replace("É ", "E");
+		playerName = playerName.replaceAll("É ", "E");
+		playerName = playerName.replaceAll("ú ", "u");
 		playerName = playerName.replaceAll("_", "");
 
 		return playerName.trim();
