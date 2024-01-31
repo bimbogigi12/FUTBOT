@@ -48,6 +48,7 @@ public class Bot extends Thread {
 
 	int minMarketValue = 0;
 	int minOverall = 86;
+	int minDefaultOverall = 85;
 
 	boolean debug = false;
 	boolean filterPlayerByRange = false;
@@ -249,13 +250,6 @@ public class Bot extends Thread {
 
 				readCurrentMoney();
 
-				getPlayerToBid();
-
-				if (selectedPlayer != null) {
-					auctPlayer();
-
-				}
-
 				//checkTransferd();
 
 				if (lastRelist == null || new Date().getTime() - lastRelist.getTime() > 1000 * 60 * 30) {
@@ -263,6 +257,13 @@ public class Bot extends Thread {
 				}
 
 				unlockScreen();
+				
+				getPlayerToBid();
+
+				if (selectedPlayer != null) {
+					auctPlayer();
+
+				}
 
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -322,6 +323,18 @@ public class Bot extends Thread {
 		// System.out.println("Current money: " + scurrentMoney);a
 		if (StringUtils.isNotEmpty(scurrentMoney) && currentMoney != Util.convertToInt(scurrentMoney)) {
 			currentMoney = Util.convertToInt(scurrentMoney);
+			
+			/*if (currentMoney < 10000) {
+				minMarketValue = 0;
+			} else if (currentMoney < 20000) {
+				minMarketValue = 100000;
+			} else if (currentMoney < 50000) {
+				minMarketValue = 200000;
+			} else {
+				minMarketValue = 0;
+			}*/
+				
+			
 			logger.debug("Current money: " + currentMoney);
 			// System.out.println("Current money: " + scurrentMoney); 
 		}
@@ -419,7 +432,7 @@ public class Bot extends Thread {
 			logger.debug("bid for " + selectedPlayer.getName() + " found: " + firstPlayerName);
 
 			Util.waitAction(3000);
-			if (selectedPlayer.getName().toLowerCase().replace(" ", "").contains(Util.normalizePlauerName(firstPlayerName).replace(" ", "").toLowerCase())) {
+			if (StringUtils.isNotEmpty(firstPlayerName) && selectedPlayer.getName().toLowerCase().replace(" ", "").contains(Util.normalizePlauerName(firstPlayerName).replace(" ", "").toLowerCase())) {
 				if (StringUtils.isNotEmpty(Util.Read(robot, rectangles.get("LAST_BID"), false))) {
 
 					int actualbid = Util.convertToInt(Util.Read(robot, rectangles.get("LAST_BID"), false).trim());
@@ -631,13 +644,19 @@ public class Bot extends Thread {
 			currentSelling = Util.convertToInt(selleingP.trim());
 			
 			if (currentSelling <50) {
-				minOverall = 84;
+				minOverall = Math.max(minDefaultOverall, 84);
 			} else if (currentSelling <70) {
-				minOverall = 85;
+				minOverall = Math.max(minDefaultOverall, 85);
 			} else if (currentSelling <90) {
-				minOverall = 86;
+				minOverall = Math.max(minDefaultOverall, 86);
 			} else {
-				minOverall = 87;
+				minOverall = Math.max(minDefaultOverall, 87);
+				
+			}
+			
+			if (currentSelling >100) {
+				return true;																			
+																						
 			}
 			
 		} catch (Exception ex) {

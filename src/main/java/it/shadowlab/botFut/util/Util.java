@@ -213,6 +213,13 @@ public class Util {
 		playerName = playerName.replaceAll("ú ", "u");
 		playerName = playerName.replaceAll("_", "");
 
+		
+		playerName = playerName.replace("Acufia", "acuna");
+		playerName = playerName.replace("schiiler", "schuller");
+		playerName = playerName.replace("Desallly", "Desailly");
+		
+		
+		
 		return playerName.trim();
 	}
 
