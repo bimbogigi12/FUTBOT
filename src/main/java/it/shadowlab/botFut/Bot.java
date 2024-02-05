@@ -258,6 +258,8 @@ public class Bot extends Thread {
 		while (true) {
 			try {
 
+				checkDialog();
+				
 				loadPlayers();
 
 				readCurrentMoney();
@@ -841,5 +843,17 @@ public class Bot extends Thread {
 
 		logger.debug("Loaded " + stats.size() + " statistics");
 	}
+	
+	private void checkDialog() {
+		chechkLimitDialog();
+	}
 
+	
+	private void chechkLimitDialog() {
+		String dialogText = Util.Read(robot, rectangles.get("LIMIT_DIALOG_TEXT"), false);
+		if (dialogText.toUpperCase().contains("LIMIT")) {
+			Util.click(robot, positions.get("LIMIT_DIALOG_OK"));
+		}
+		
+	}
 }

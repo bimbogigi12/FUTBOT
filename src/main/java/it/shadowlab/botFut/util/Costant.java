@@ -38,6 +38,11 @@ public class Costant {
 		SIZE3840_2160.put("FIRST_BID", new Rectangle(1470, 392, 120, 20));
 		SIZE3840_2160.put("UNSOLD_ITEM", new Rectangle(1470, 660, /*200, 200));*/120, 20));
 		
+		//Dialog
+		SIZE3840_2160.put("LIMIT_DIALOG_TEXT", new Rectangle(1850, 1010, 180, 50));
+		POSITION3840_2160.put("LIMIT_DIALOG_OK", new Dimension(1200, 2000));
+		
+		
 		POSITION3840_2160.put("TRANSFER", new Dimension(440, 70));
 		POSITION3840_2160.put("TO_MARKET", new Dimension(430, 1600));
 		POSITION3840_2160.put("SEARCH", new Dimension(470, 1500));
