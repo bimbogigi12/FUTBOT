@@ -122,7 +122,7 @@ public class Util {
 					robot.keyPress(KeyEvent.VK_NUMPAD5);
 					robot.keyRelease(KeyEvent.VK_ALT);
 				} else if (charT == 'G') {
-					robot.keyPress(KeyEvent.VK_SHIFT);
+					robot.keyPress(KeyEvent.VK_SHIFT);https://www.futbin.com/24/pgp?page=1&ps_price=https://www.fut
 					robot.keyPress(java.awt.event.KeyEvent.getExtendedKeyCodeForChar(charT));
 					robot.keyRelease(KeyEvent.VK_SHIFT);
 				} else {
@@ -215,8 +215,13 @@ public class Util {
 
 		
 		playerName = playerName.replace("Acufia", "acuna");
+		playerName = playerName.replace("Acuiia", "acuna");
 		playerName = playerName.replace("schiiler", "schuller");
 		playerName = playerName.replace("Desallly", "Desailly");
+		playerName = playerName.replace("Éder Militao", "Eder Militao");
+		playerName = playerName.replace("Santana de", "Allison");
+		
+		
 		
 		
 		

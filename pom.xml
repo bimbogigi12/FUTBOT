@@ -51,6 +51,11 @@
 			<artifactId>mssql-jdbc</artifactId>
 			<version>8.2.1.jre11</version>
 		</dependency>
+		<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-csv</artifactId>
+			<version>1.9.0</version>
+		</dependency>
 
 	</dependencies>
 	<build>

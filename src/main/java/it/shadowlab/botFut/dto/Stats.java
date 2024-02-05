@@ -4,6 +4,7 @@ public class Stats {
 	int bidCount;
 	int tryedBuy;
 	int winCount;
+	boolean enabled;
 
 	public int getBidCount() {
 		return bidCount;
@@ -29,4 +30,13 @@ public class Stats {
 		this.winCount = winCount;
 	}
 
+	public boolean isEnabled() {
+		return enabled;
+	}
+
+	public void setEnabled(boolean enabled) {
+		this.enabled = enabled;
+	}
+
+	
 }

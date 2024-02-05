@@ -220,7 +220,7 @@ public class FutBinUtil {
 				
 				logger.debug("Reading page");
 				
-				File input = new File("d:/temp/FUT/FUT_PAGE"+ minMOney + "-" + maxMoney+".html");
+				File input = new File(Costant.FOLDER_FUT+"/FUT_PAGE"+ minMOney + "-" + maxMoney+".html");
 				Document doc = Jsoup.parse(input, "UTF-8", "http://example.com/");
 				
 				Elements thead = doc.select(".players_table_header");

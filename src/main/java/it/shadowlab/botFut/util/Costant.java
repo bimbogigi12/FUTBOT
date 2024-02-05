@@ -5,7 +5,11 @@ import java.awt.Rectangle;
 import java.util.HashMap;
 
 public class Costant {
+	
+	public static int MAX_BID_COUNT = 10;
 
+	public static String FOLDER_FUT = "d:/temp/FUT";
+	
 	public static HashMap<String, Rectangle> SIZE1920_1080 = new HashMap<>();
 	public static HashMap<String, Rectangle> SIZE3840_2160 = new HashMap<>();
 
@@ -26,6 +30,7 @@ public class Costant {
 		SIZE3840_2160.put("CURRENT_MONEY", new Rectangle(3475, 173, 120, 27));
 		SIZE3840_2160.put("LAST_BID", new Rectangle(2250, 920, 170, 40));
 		SIZE3840_2160.put("TRANSFER_ITEM", new Rectangle(2130, 340, 60, 50));
+		SIZE3840_2160.put("ACTUAL_BID", new Rectangle(1530, 670, 60, 50));
 		
 		SIZE3840_2160.put("WON_ITEMS", new Rectangle(1360, 600, 200, 40));
 		SIZE3840_2160.put("PLAYER_TO_SELL", new Rectangle(1470, 670, 200, 30));
@@ -52,6 +57,8 @@ public class Costant {
 		POSITION3840_2160.put("UNSOLD_ITEM", new Dimension(650, 1520));
 		POSITION3840_2160.put("CLEAR_SOLD", new Dimension(395, 2110));
 		POSITION3840_2160.put("LOGIN", new Dimension(1180, 2260));
+		POSITION3840_2160.put("DOWN_TRANSFER_TARGETS", new Dimension(1950, 2220));
+		
 		
 		POSITION3840_2160.put("USER", new Dimension(390, 1800));
 		POSITION3840_2160.put("PASSWORD", new Dimension(460, 1800));
