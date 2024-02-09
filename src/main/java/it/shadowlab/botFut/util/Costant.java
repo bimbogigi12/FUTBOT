@@ -29,6 +29,7 @@ public class Costant {
 		
 		SIZE3840_2160.put("CURRENT_MONEY", new Rectangle(3475, 173, 120, 27));
 		SIZE3840_2160.put("LAST_BID", new Rectangle(2250, 920, 170, 40));
+		SIZE3840_2160.put("REMAINING_TIME", new Rectangle(2000, 460, 170, 40));
 		SIZE3840_2160.put("TRANSFER_ITEM", new Rectangle(2130, 340, 60, 50));
 		SIZE3840_2160.put("ACTUAL_BID", new Rectangle(1530, 670, 60, 50));
 		
@@ -41,6 +42,8 @@ public class Costant {
 		//Dialog
 		SIZE3840_2160.put("LIMIT_DIALOG_TEXT", new Rectangle(1850, 1010, 180, 50));
 		POSITION3840_2160.put("LIMIT_DIALOG_OK", new Dimension(1200, 2000));
+		SIZE3840_2160.put("HIGHER_DIALOG_TEXT", new Rectangle(1850, 1010, 180, 50));
+		POSITION3840_2160.put("HIGHER_DIALOG_OK", new Dimension(1180, 2000));
 		
 		
 		POSITION3840_2160.put("TRANSFER", new Dimension(440, 70));
