@@ -413,9 +413,13 @@ public class Bot extends Thread {
 
 					selectedPlayer = playerBiddable.get(indexSelectedPlayer);
 					Stats playerStat = stats.get(selectedPlayer.getName());
-					if (selectedPlayer.getBidToBuy() > currentMoney  || (playerStat != null && !playerStat.isEnabled()) ) {
-						selectedPlayer = null;
-						return;
+					if (selectedPlayer.getBidToBuy() > currentMoney  ) {
+						if (playerStat != null && !playerStat.isEnabled()) {
+							getPlayerToBid();
+						} else {
+							selectedPlayer = null;
+							return;
+						}
 					}
 
 					// System.out.println(selectedPlayer);
@@ -485,7 +489,7 @@ public class Bot extends Thread {
 
 							Rectangle timeToExpire = rectangles.get("REMAINING_TIME");
 									
-							String remainingTime = Util.Read(robot, new Rectangle((int)timeToExpire.getX(), (int)timeToExpire.getY()+ offset, (int)timeToExpire.getWidth(), (int)timeToExpire.getHeight()), true).trim();
+							String remainingTime = Util.Read(robot, new Rectangle((int)timeToExpire.getX(), (int)timeToExpire.getY()+ offset, (int)timeToExpire.getWidth(), (int)timeToExpire.getHeight()), false).trim();
 							
 							// System.out.println("Actual bid " + actualbid);
 							logger.debug("Actual bid " + actualbid+ " remainig time "+remainingTime);
@@ -698,7 +702,7 @@ public class Bot extends Thread {
 	}
 
 	private int getActualBid() {
-		String selleingP = Util.Read(robot, rectangles.get("ACTUAL_BID"), false).replace("\"", "").replace("]", "").replace("|", "").replace("]00" + "", "").replace("\n", "").replace("l", "1");
+		String selleingP = Util.Read(robot, rectangles.get("ACTUAL_BID"), false).replace("\"", "").replace("]", "").replace("|", "").replace("]00" + "", "").replace("\n", "").replace("l", "1").replace("(0", "0");
 		selleingP = selleingP.replace("o", "9");
 		int actualBid = 0;
 		try {

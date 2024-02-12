@@ -220,9 +220,7 @@ public class Util {
 		playerName = playerName.replace("Desallly", "Desailly");
 		playerName = playerName.replace("Éder Militao", "Eder Militao");
 		playerName = playerName.replace("Santana de", "Allison");
-		
-		
-		
+		playerName = playerName.replace("Jo&o", "joao");
 		
 		
 		return playerName.trim();
