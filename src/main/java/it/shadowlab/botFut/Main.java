@@ -11,7 +11,7 @@ public class Main {
 			try {
 				Robot robot = new Robot();
 				
-				Bot bot = new Bot(robot, 2);
+				Bot bot = new Bot(robot);
 				bot.start();
 			} catch (AWTException e) {
 				e.printStackTrace();

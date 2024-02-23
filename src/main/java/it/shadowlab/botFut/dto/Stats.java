@@ -38,5 +38,10 @@ public class Stats {
 		this.enabled = enabled;
 	}
 
+	@Override
+	public String toString() {
+		return "Stats [bidCount=" + bidCount + ", tryedBuy=" + tryedBuy + ", winCount=" + winCount + ", enabled=" + enabled + "]";
+	}
+
 	
 }

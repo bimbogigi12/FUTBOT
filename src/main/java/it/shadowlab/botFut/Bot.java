@@ -27,6 +27,7 @@ import org.slf4j.LoggerFactory;
 
 import it.shadowlab.botFut.dto.Player;
 import it.shadowlab.botFut.dto.Stats;
+import it.shadowlab.botFut.util.Config;
 import it.shadowlab.botFut.util.Costant;
 import it.shadowlab.botFut.util.FutBinUtil;
 import it.shadowlab.botFut.util.Util;
@@ -50,24 +51,27 @@ public class Bot extends Thread {
 	Date lastRefresh = null;
 	Date lastLoadPlayers = null;
 
-	String username = "grassi.maurizio79@gmail.com";
-	String password = "26Giugno2010";
+	String username = "";
+	String password = "";
 
-	int bidCount = 0;
-
-//	int minMarketValue = 10000;
-	int minMarketValue = 0;
+	int minMarketValue = 10000;
+	// int minMarketValue = 0;
 	int minOverall = 86;
-	int minDefaultOverall = 86;
+	int minDefaultOverall = 0;
 
 	boolean debug = false;
 	boolean filterPlayerByRange = false;
+	boolean checkStat = false;
 
 	boolean playersLoaded = false;
 	boolean isResellingPlayersByMarket = false;
 
-	Bot(Robot robot, int monitorSize) {
+	Config configs = null;
+	
+	Bot(Robot robot) {
 		this.robot = robot;
+		
+		int monitorSize = loadProperties();
 		if (monitorSize == 1) {
 			rectangles = Costant.SIZE1920_1080;
 			positions = Costant.POSITION1920_1080;
@@ -85,11 +89,22 @@ public class Bot extends Thread {
 
 	}
 
+	private int loadProperties() {
+		configs = new Config();
+		
+		int monitorSize = configs.getMonitorSize();
+		minDefaultOverall = configs.getMinOverall();
+		lastLoadPlayers = configs.getLastLoadPlayer();
+		username = configs.getUsername();
+		password = configs.getPassword();
+		return monitorSize;
+	}
+
 	private void loadPlayers() {
 
 		if (players.isEmpty() || lastLoadPlayers == null || new Date().getTime() - lastLoadPlayers.getTime() > 1000 * 60 * 60 * 4) {
 			if (!debug) {
-				allPlayers = FutBinUtil.loadPlayers(robot, rectangles, positions);
+				allPlayers = FutBinUtil.loadPlayers(robot, rectangles, positions, configs);
 
 			} else {
 
@@ -130,7 +145,6 @@ public class Bot extends Thread {
 				p.setBidToBuy(100);
 				p.setBidToSell(3300);
 				p.setBidToSellNow(3600);
-				players.add(p);
 				allPlayers.add(p);
 
 				p = new Player();
@@ -213,15 +227,11 @@ public class Bot extends Thread {
 				players.add(p);
 				allPlayers.add(p);
 
-				/*
-				 * try { DatabaseService.updatePlayers(new HashSet<>(players)); } catch
-				 * (Exception ex) { ex.printStackTrace(); }
-				 */
-
 			}
 
 			playersLoaded = true;
 			lastLoadPlayers = new Date();
+			configs.setLastLoadPlayer(lastLoadPlayers);
 			Util.click(robot, positions.get("LOGIN"));
 			checkLockSession();
 		}
@@ -258,10 +268,8 @@ public class Bot extends Thread {
 		while (true) {
 			try {
 
-
-				
 				checkDialog();
-				
+
 				loadPlayers();
 
 				readCurrentMoney();
@@ -276,6 +284,7 @@ public class Bot extends Thread {
 
 				if (lastRelist == null || new Date().getTime() - lastRelist.getTime() > 1000 * 60 * 30) {
 					relistPlayer();
+					configs.saveConfig();
 				}
 
 				unlockScreen();
@@ -304,11 +313,11 @@ public class Bot extends Thread {
 		// Util.click(robot, positions.get("LOGIN"));
 		Util.click(robot, positions.get("USER"));
 		Util.waitAction(300);
-		for (int i=0; i<20; i++) {
+		for (int i = 0; i < 20; i++) {
 			robot.keyPress(KeyEvent.VK_CANCEL);
 			robot.keyPress(KeyEvent.VK_BACK_SPACE);
 		}
-		
+
 		Util.write(robot, username);
 		Util.write(robot, "gmail.com");
 		Util.click(robot, positions.get("PASSWORD"));
@@ -319,25 +328,6 @@ public class Bot extends Thread {
 	}
 
 	private void unlockScreen() {
-
-		if (lastRefresh == null || new Date().getTime() - lastRefresh.getTime() > 1000 * 60 * 5) {
-			logger.debug("Checking transfer by unlock Screen (5 minutes)");
-			clearExpired();
-			checkTransferd();
-			// System.out.println("Refresh page");
-			logger.debug("Refresh page");
-			robot.keyPress(KeyEvent.VK_F5);
-			Util.waitAction(5000);
-			robot.keyPress(KeyEvent.VK_F5);
-			lastRefresh = new Date();
-			Util.waitAction(5000);
-			// System.out.println("Waited");
-			// Util.click(robot, positions.get("CONFIRM_DIALOG"));
-			Util.click(robot, positions.get("LOGIN"));
-			Util.waitAction(5000);
-			checkLockSession();
-			printStats();
-		}
 	}
 
 	private void printStats() {
@@ -356,9 +346,7 @@ public class Bot extends Thread {
 	}
 
 	private void readCurrentMoney() {
-		// System.out.println("Reading money");
 		String scurrentMoney = Util.Read(robot, rectangles.get("CURRENT_MONEY"), false).trim();
-		// System.out.println("Current money: " + scurrentMoney);a
 		if (StringUtils.isNotEmpty(scurrentMoney) && currentMoney != Util.convertToInt(scurrentMoney)) {
 			currentMoney = Util.convertToInt(scurrentMoney);
 
@@ -413,8 +401,10 @@ public class Bot extends Thread {
 
 					selectedPlayer = playerBiddable.get(indexSelectedPlayer);
 					Stats playerStat = stats.get(selectedPlayer.getName());
-					if (selectedPlayer.getBidToBuy() > currentMoney  ) {
-						if (playerStat != null && !playerStat.isEnabled()) {
+					if (selectedPlayer.getBidToBuy() > currentMoney) {
+						if (playerStat != null && !playerStat.isEnabled() && checkStat) {
+							logger.debug("Player disabled " + selectedPlayer);
+							logger.debug(playerStat.toString());
 							getPlayerToBid();
 						} else {
 							selectedPlayer = null;
@@ -424,6 +414,9 @@ public class Bot extends Thread {
 
 					// System.out.println(selectedPlayer);
 					logger.debug(selectedPlayer.toString());
+					if (playerStat != null) {
+						logger.debug(playerStat.toString());
+					}
 				}
 			}
 		}
@@ -460,7 +453,7 @@ public class Bot extends Thread {
 			Util.waitAction(300);
 			Util.write(robot, String.valueOf(selectedPlayer.getBidToBuy() - 100));
 
-			stat.setBidCount(stat.getBidCount() + 1);
+			stat.setTryedBuy(stat.getTryedBuy() + 1);
 
 			Util.waitAction(300);
 			Util.click(robot, positions.get("SEARCH_AUCTION"));
@@ -474,25 +467,25 @@ public class Bot extends Thread {
 			Util.waitAction(3000);
 			if (StringUtils.isNotEmpty(firstPlayerName) && selectedPlayer.getName().toLowerCase().replace(" ", "").contains(Util.normalizePlauerName(firstPlayerName).replace(" ", "").toLowerCase())) {
 				int offset = 0;
-				stat.setTryedBuy(stat.getTryedBuy() + 1);
+				stat.setBidCount(stat.getTryedBuy() + 1);
 				double rnd = Math.random() * Math.min(Costant.MAX_BID_COUNT, remainingBid);
 				int bidCOunt = 3 + (int) rnd;
 				logger.debug("trying " + bidCOunt + " bid");
 				for (int i = 0; i < bidCOunt; i++) {
 					readCurrentMoney();
 					if (currentMoney > selectedPlayer.getBidToBuy()) {
-						
+
 						if (StringUtils.isNotEmpty(Util.Read(robot, rectangles.get("LAST_BID"), false))) {
 							Util.click(robot, new Dimension((int) rectangles.get("FIRST_BID").getY() + offset, (int) (rectangles.get("FIRST_BID").getX())));
 							Util.waitAction(300);
 							int actualbid = Util.convertToInt(Util.Read(robot, rectangles.get("LAST_BID"), false).trim());
 
 							Rectangle timeToExpire = rectangles.get("REMAINING_TIME");
-									
-							String remainingTime = Util.Read(robot, new Rectangle((int)timeToExpire.getX(), (int)timeToExpire.getY()+ offset, (int)timeToExpire.getWidth(), (int)timeToExpire.getHeight()), false).trim();
-							
+
+							String remainingTime = Util.Read(robot, new Rectangle((int) timeToExpire.getX(), (int) timeToExpire.getY() + offset, (int) timeToExpire.getWidth(), (int) timeToExpire.getHeight()), false).trim();
+
 							// System.out.println("Actual bid " + actualbid);
-							logger.debug("Actual bid " + actualbid+ " remainig time "+remainingTime);
+							logger.debug("Actual bid " + actualbid + " remainig time " + remainingTime);
 
 							if (selectedPlayer.getBidToBuy() > actualbid && (remainingTime.toUpperCase().contains("MINUTE") || remainingTime.toUpperCase().contains("SECOND"))) {
 								Util.click(robot, positions.get("BID_TEXT"));
@@ -500,17 +493,12 @@ public class Bot extends Thread {
 								Util.write(robot, String.valueOf(selectedPlayer.getBidToBuy()));
 								Util.waitAction(300);
 								Util.click(robot, positions.get("BID"));
-								bidCount++;
 								
 								Util.waitAction(500);
 							}
 
-							/*
-							 * if (bidCount > 45) { bidCount = 0; Util.waitAction(30 * 1000);
-							 * checkTransferd(); }
-							 */
 						}
-						offset += 125	;
+						offset += 125;
 					} else {
 						logger.debug("not enough money");
 					}
@@ -521,6 +509,7 @@ public class Bot extends Thread {
 			}
 
 			stats.put(playerName, stat);
+			logger.debug(stat.toString());
 		}
 
 	}
@@ -606,6 +595,11 @@ public class Bot extends Thread {
 		Util.click(robot, positions.get("TRANSFER"));
 		Util.waitAction(500);
 
+		checkDialog();
+
+		if (getActualBid() == 0)
+			return;
+
 		if (canBeTransferedPlayer(99)) {
 
 			Util.click(robot, positions.get("TRANSFER_TARGET"));
@@ -613,11 +607,12 @@ public class Bot extends Thread {
 
 			boolean foundWon = false;
 
-			for (int i = 0; i < 3 && !foundWon; i++) {
+			for (int i = 0; i < 4 && !foundWon; i++) {
 
-				Util.click(robot, positions.get("DOWN_TRANSFER_TARGETS"));
-				Util.waitAction(500);
-
+				if (i > 0) {
+					Util.click(robot, positions.get("DOWN_TRANSFER_TARGETS"));
+					Util.waitAction(500);
+				}
 				int offset = 0;
 
 				Rectangle wonItemsRect = rectangles.get("WON_ITEMS");
@@ -641,7 +636,7 @@ public class Bot extends Thread {
 						}
 
 						if (StringUtils.isNotEmpty(playerToSellNormalized)) {
-							List<Player> playerConfgs = players.stream().filter(p -> p.getName().toLowerCase().contains(playerToSellNormalized.toLowerCase())).collect(Collectors.toList());
+							List<Player> playerConfgs = allPlayers.stream().filter(p -> p.getName().toLowerCase().contains(playerToSellNormalized.toLowerCase())).collect(Collectors.toList());
 
 							if (playerConfgs.size() > 0) {
 								/*
@@ -660,6 +655,8 @@ public class Bot extends Thread {
 								}
 								stat.setWinCount(stat.getWinCount() + 1);
 								stats.put(playerConfgs.get(0).getName(), stat);
+
+								logger.debug(stat.toString());
 
 								foundWon = true;
 								// }
@@ -702,7 +699,7 @@ public class Bot extends Thread {
 	}
 
 	private int getActualBid() {
-		String selleingP = Util.Read(robot, rectangles.get("ACTUAL_BID"), false).replace("\"", "").replace("]", "").replace("|", "").replace("]00" + "", "").replace("\n", "").replace("l", "1").replace("(0", "0");
+		String selleingP = Util.Read(robot, rectangles.get("ACTUAL_BID"), false).replace("\"", "").replace("]", "").replace("|", "").replace("]00" + "", "").replace("\n", "").replace("l", "1").replace("(0", "0").replace("<{0", "0");
 		selleingP = selleingP.replace("o", "9");
 		int actualBid = 0;
 		try {
@@ -710,7 +707,7 @@ public class Bot extends Thread {
 
 		} catch (Exception ex) {
 			ex.printStackTrace();
-			return 50;
+			return 0;
 		}
 
 		logger.debug("Bidding " + actualBid + " players");
@@ -779,6 +776,9 @@ public class Bot extends Thread {
 		Util.click(robot, positions.get("TRANSFER"));
 		Util.waitAction(500);
 
+		if (getActualBid() == 0)
+			return;
+
 		Util.click(robot, positions.get("TRANSFER_TARGET"));
 		Util.waitAction(500);
 
@@ -786,8 +786,10 @@ public class Bot extends Thread {
 
 		for (int i = 0; i < 5 && !foundExpired; i++) {
 
-			Util.click(robot, positions.get("DOWN_TRANSFER_TARGETS"));
-			Util.waitAction(500);
+			if (i > 0) {
+				Util.click(robot, positions.get("DOWN_TRANSFER_TARGETS"));
+				Util.waitAction(500);
+			}
 			int offset = 0;
 
 			while (!foundExpired && offset < 2000) {
@@ -812,7 +814,7 @@ public class Bot extends Thread {
 
 	private void saveStats() throws IOException {
 
-		FileWriter sw = new FileWriter(Costant.FOLDER_FUT + "/stat.csv");
+		FileWriter sw = new FileWriter(configs.getFolderFUT() + "/stat.csv");
 
 		CSVFormat csvFormat = CSVFormat.DEFAULT.builder().setHeader(HEADERS).build();
 
@@ -829,7 +831,7 @@ public class Bot extends Thread {
 	}
 
 	private void loadStats() throws IOException {
-		Reader in = new FileReader(Costant.FOLDER_FUT + "/stat.csv");
+		Reader in = new FileReader(configs.getFolderFUT() + "/stat.csv");
 
 		CSVFormat csvFormat = CSVFormat.DEFAULT.builder().setHeader(HEADERS).setSkipHeaderRecord(true).build();
 
@@ -850,46 +852,61 @@ public class Bot extends Thread {
 
 			boolean benabled = true;
 
+			int percBide = 0;
+
 			if (stat.getTryedBuy() > 5 && stat.getBidCount() > 0) {
-				benabled = stat.getTryedBuy() / stat.getBidCount() > 2;
+				percBide = stat.getTryedBuy() / stat.getBidCount();
+				benabled = percBide <= 2;
 			}
 			stat.setEnabled(benabled);
 
 			stats.put(name, stat);
+			logger.debug(name + " " + stat.toString() + " " + percBide);
 		}
 
 		logger.debug("Loaded " + stats.size() + " statistics");
 	}
-	
+
 	private void checkDialog() {
 		chechkLimitDialog();
 //		chechkHighestDialog();
 		chechkAuthenticationDialog();
+		chechQuickSellDialog();
 	}
 
-	
 	private void chechkLimitDialog() {
 		String dialogText = Util.Read(robot, rectangles.get("LIMIT_DIALOG_TEXT"), false);
 		if (dialogText.toUpperCase().contains("LIMIT")) {
 			Util.click(robot, positions.get("LIMIT_DIALOG_OK"));
 		}
-		
+
 	}
-	
+
 	private void chechkHighestDialog() {
 		String dialogText = Util.Read(robot, rectangles.get("HIGHER_DIALOG_TEXT"), false);
-		//logger.debug(dialogText);
+		//
 		if (dialogText.toUpperCase().contains("HIGHEST")) {
+			logger.debug(dialogText);
 			Util.click(robot, positions.get("HIGHER_DIALOG_OK"));
-		}		
+		}
 	}
-	
+
+	private void chechQuickSellDialog() {
+		String dialogText = Util.Read(robot, rectangles.get("HIGHER_DIALOG_TEXT"), false);
+		//
+		if (dialogText.toUpperCase().contains("QUICK SELL")) {
+			logger.debug(dialogText);
+			Util.click(robot, positions.get("QUICK_SELL_DIALOG_CANCEL"));
+		}
+	}
+
 	private void chechkAuthenticationDialog() {
 		String dialogText = Util.Read(robot, rectangles.get("HIGHER_DIALOG_TEXT"), false);
-		//logger.debug(dialogText);
+		//
 		if (dialogText.toUpperCase().contains("AUTHENTIC")) {
+			logger.debug(dialogText);
 			Util.click(robot, positions.get("HIGHER_DIALOG_OK"));
 			unlockScreen();
-		}		
+		}
 	}
 }

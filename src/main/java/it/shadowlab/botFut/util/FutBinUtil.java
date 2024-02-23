@@ -31,14 +31,13 @@ public class FutBinUtil {
 
 	private static int minMOney = 0;
 
-	static public List<Player> loadPlayers(Robot robot, HashMap<String, Rectangle> prectangles, HashMap<String, Dimension> ppositions) {
+	static public List<Player> loadPlayers(Robot robot, HashMap<String, Rectangle> prectangles, HashMap<String, Dimension> ppositions, Config config) {
 		Set<Player> players = new HashSet<>();
 
 		rectangles = prectangles;
 		positions = ppositions;
 
 		// openFutBin(robot);
-
 
 		Date start = new Date();
 
@@ -49,14 +48,14 @@ public class FutBinUtil {
 				constBid = 10000;
 			}
 
-			if (i> 20) {
+			if (i > 20) {
 				constBid = 10000000;
 			}
-			
-			players.addAll(loadPlayers(robot, (i + 1) * constBid));
+
+			players.addAll(loadPlayers(robot, (i + 1) * constBid, config));
 		}
-		
-		players.addAll(loadIcons(robot));
+
+		players.addAll(loadIcons(robot, config));
 
 		for (Player play : players) {
 			// System.out.println(play);
@@ -67,10 +66,13 @@ public class FutBinUtil {
 		// Date()).getTime() - start.getTime())/1000/60)+" minutes" );
 		logger.debug("loaded " + players.size() + " players in " + (int) (((new Date()).getTime() - start.getTime()) / 1000 / 60) + " minutes");
 
-		Util.click(robot, positions.get("URL"));
-		Util.write(robot, "https://www.ea.com/it-it/ea-sports-fc/ultimate-team/web-app/");
-		robot.keyPress(KeyEvent.VK_ENTER);
-		Util.waitAction(2000);
+		if (isTimeReload(config)) {
+
+			Util.click(robot, positions.get("URL"));
+			Util.write(robot, "https://www.ea.com/it-it/ea-sports-fc/ultimate-team/web-app/");
+			robot.keyPress(KeyEvent.VK_ENTER);
+			Util.waitAction(2000);
+		}
 
 		return players.stream().collect(Collectors.toList());
 	}
@@ -84,28 +86,31 @@ public class FutBinUtil {
 		Util.waitAction(2000);
 		// Util.click(robot, positions.get("URL"));
 	}
-	static public Set<Player> loadIcons(Robot robot) {
-		HashSet<Player> players = new HashSet<>();
-		Util.click(robot, positions.get("URL"));
-		Util.write(robot, "https://www.futbin.com/24/pgp?page=1&order=desc&sort=games&version=icons", 100);
 
-		robot.keyPress(KeyEvent.VK_ENTER);
-		robot.keyRelease(KeyEvent.VK_ENTER);
-		Util.waitAction(2000);
-		
-		loadPlayers(robot, 13, players);
+	static public Set<Player> loadIcons(Robot robot, Config config) {
+		HashSet<Player> players = new HashSet<>();
+
+		if (isTimeReload(config)) {
+			Util.click(robot, positions.get("URL"));
+			Util.write(robot, "https://www.futbin.com/24/pgp?page=1&order=desc&sort=games&version=icons", 100);
+
+			robot.keyPress(KeyEvent.VK_ENTER);
+			robot.keyRelease(KeyEvent.VK_ENTER);
+			Util.waitAction(2000);
+		}
+		loadPlayers(robot, 13, players, config);
 
 		return players;
 	}
 
-	
 	//
-	
-	static public Set<Player> loadPlayers(Robot robot, int maxMoney) {
+
+	static public Set<Player> loadPlayers(Robot robot, int maxMoney, Config config) {
 		HashSet<Player> players = new HashSet<>();
-		goToFutPage(robot, maxMoney);
-		
-		loadPlayers(robot, maxMoney, players);
+		if (isTimeReload(config))
+			goToFutPage(robot, maxMoney);
+
+		loadPlayers(robot, maxMoney, players, config);
 
 		try {
 //			DatabaseService.updatePlayers(players);
@@ -115,11 +120,13 @@ public class FutBinUtil {
 		return players;
 	}
 
-	private static void loadPlayers(Robot robot, int maxMoney, HashSet<Player> players) {
+	private static boolean isTimeReload(Config config) {
+		return new Date().getTime() - config.getLastLoadPlayer().getTime() > 1000 * 60 * 60 * 4;
+	}
+
+	private static void loadPlayers(Robot robot, int maxMoney, HashSet<Player> players, Config config) {
 		boolean loadFromPages = false;
 		if (loadFromPages) {
-
-			
 
 			int offset = 0;
 
@@ -187,42 +194,43 @@ public class FutBinUtil {
 
 			try {
 
-				
-				Thread.sleep(2000);
-				//logger.debug("saving page");
-				
-				robot.keyPress(KeyEvent.VK_CONTROL);
-				robot.keyPress(KeyEvent.VK_S);
-				robot.keyRelease(KeyEvent.VK_CONTROL);
-				robot.keyRelease(KeyEvent.VK_S);
-				
-				robot.keyPress(KeyEvent.VK_CONTROL);
-				Thread.sleep(1000);
-				robot.keyPress(KeyEvent.VK_S);
-				robot.keyRelease(KeyEvent.VK_S);
-				robot.keyRelease(KeyEvent.VK_CONTROL);
-				
-				Thread.sleep(2000);
-				
-				//logger.debug("Writing name page");
-				Util.write(robot, "FUT_PAGE" + minMOney + "-" + maxMoney, 300);
-				
-				robot.keyPress(KeyEvent.VK_ENTER);
-				
-				Thread.sleep(3000);
-				
-				robot.keyPress(KeyEvent.VK_LEFT);
-				//Thread.sleep(3000);
-				robot.keyPress(KeyEvent.VK_ENTER);
-				
-				//Thread.sleep(30000);
-				Thread.sleep(5000);
-				
+				if (isTimeReload(config)) {
+					Thread.sleep(2000);
+					// logger.debug("saving page");
+
+					robot.keyPress(KeyEvent.VK_CONTROL);
+					robot.keyPress(KeyEvent.VK_S);
+					robot.keyRelease(KeyEvent.VK_CONTROL);
+					robot.keyRelease(KeyEvent.VK_S);
+
+					robot.keyPress(KeyEvent.VK_CONTROL);
+					Thread.sleep(1000);
+					robot.keyPress(KeyEvent.VK_S);
+					robot.keyRelease(KeyEvent.VK_S);
+					robot.keyRelease(KeyEvent.VK_CONTROL);
+
+					Thread.sleep(2000);
+
+					// logger.debug("Writing name page");
+					Util.write(robot, "FUT_PAGE" + minMOney + "-" + maxMoney, 300);
+
+					robot.keyPress(KeyEvent.VK_ENTER);
+
+					Thread.sleep(3000);
+
+					robot.keyPress(KeyEvent.VK_LEFT);
+					// Thread.sleep(3000);
+					robot.keyPress(KeyEvent.VK_ENTER);
+
+					// Thread.sleep(30000);
+					Thread.sleep(5000);
+				}
+
 				logger.debug("Reading page");
-				
-				File input = new File(Costant.FOLDER_FUT+"/FUT_PAGE"+ minMOney + "-" + maxMoney+".html");
+
+				File input = new File(config.getFolderFUT() + "/FUT_PAGE" + minMOney + "-" + maxMoney + ".html");
 				Document doc = Jsoup.parse(input, "UTF-8", "http://example.com/");
-				
+
 				Elements thead = doc.select(".players_table_header");
 
 				Elements playersEle = thead.next().select("tbody").select("tr");
@@ -234,37 +242,36 @@ public class FutBinUtil {
 						if (player.select(".rating").size() > 1) {
 							String overall = player.select(".rating").get(1).text();
 
-							
-								String playerName = playerNameA.text();
+							String playerName = playerNameA.text();
 
-								playerName = Util.normalizePlauerName(playerName);
-								String actualValue = "";
-								if (player.select(".ps4_color").text().contains(".")) {
-									
-									int idx = player.select(".ps4_color").text().indexOf(".");
-									int after0 = player.select(".ps4_color").text().substring(idx+1, player.select(".ps4_color").text().length()).length();
-									switch(after0) {
-									case 2:
-										actualValue = player.select(".ps4_color").text().replace(".", "").replace("M", "00000").replace("K", "00");
-										break;
-									case 3:
-										actualValue = player.select(".ps4_color").text().replace(".", "").replace("M", "0000").replace("K", "0");
-									}
-									
-									//actualValue = player.select(".ps4_color").text().replace(".", "").replace("M", "00000").replace("K", "00");
-								} else {
-									actualValue = player.select(".ps4_color").text().replace("M", "000000").replace("K", "000");
+							playerName = Util.normalizePlauerName(playerName);
+							String actualValue = "";
+							if (player.select(".ps4_color").text().contains(".")) {
+
+								int idx = player.select(".ps4_color").text().indexOf(".");
+								int after0 = player.select(".ps4_color").text().substring(idx + 1, player.select(".ps4_color").text().length()).length();
+								switch (after0) {
+								case 2:
+									actualValue = player.select(".ps4_color").text().replace(".", "").replace("M", "00000").replace("K", "00");
+									break;
+								case 3:
+									actualValue = player.select(".ps4_color").text().replace(".", "").replace("M", "0000").replace("K", "0");
 								}
 
-								Player reece = validatePlayer(playerName, actualValue, overall, false);
+								// actualValue = player.select(".ps4_color").text().replace(".",
+								// "").replace("M", "00000").replace("K", "00");
+							} else {
+								actualValue = player.select(".ps4_color").text().replace("M", "000000").replace("K", "000");
+							}
 
-								if (reece != null) {
-									players.add(reece);
-									logger.debug(reece.toString());
-									// 
-								}
+							Player reece = validatePlayer(playerName, actualValue, overall, false);
 
-							
+							if (reece != null) {
+								players.add(reece);
+								logger.debug(reece.toString());
+								//
+							}
+
 						}
 					} catch (Exception ex) {
 						ex.printStackTrace();
@@ -327,13 +334,14 @@ public class FutBinUtil {
 			isValid = false;
 		}
 
-		/*if (Integer.valueOf(overall) < minOverall || Integer.valueOf(overall) > 100) {
-			isValid = false;
-		}*/
+		/*
+		 * if (Integer.valueOf(overall) < minOverall || Integer.valueOf(overall) > 100)
+		 * { isValid = false; }
+		 */
 
 		if (Integer.valueOf(marketValue) < 1000)
 			isValid = false;
-		
+
 		if (readFromOCr) {
 			switch (Integer.valueOf(overall)) {
 			case 84:

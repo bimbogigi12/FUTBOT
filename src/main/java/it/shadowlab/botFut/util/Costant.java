@@ -8,7 +8,7 @@ public class Costant {
 	
 	public static int MAX_BID_COUNT = 10;
 
-	public static String FOLDER_FUT = "d:/temp/FUT";
+	//public static String FOLDER_FUT = "d:/temp/FUT";
 	
 	public static HashMap<String, Rectangle> SIZE1920_1080 = new HashMap<>();
 	public static HashMap<String, Rectangle> SIZE3840_2160 = new HashMap<>();
@@ -35,7 +35,7 @@ public class Costant {
 		
 		SIZE3840_2160.put("WON_ITEMS", new Rectangle(1360, 600, 200, 40));
 		SIZE3840_2160.put("PLAYER_TO_SELL", new Rectangle(1470, 670, 200, 30));
-		SIZE3840_2160.put("CLEAR_EXPIRED", new Rectangle(2090, 900, 120, 30));
+		SIZE3840_2160.put("CLEAR_EXPIRED", new Rectangle(2090, 300, 120, 30));
 		SIZE3840_2160.put("FIRST_BID", new Rectangle(1470, 392, 120, 20));
 		SIZE3840_2160.put("UNSOLD_ITEM", new Rectangle(1470, 660, /*200, 200));*/120, 20));
 		
@@ -44,6 +44,8 @@ public class Costant {
 		POSITION3840_2160.put("LIMIT_DIALOG_OK", new Dimension(1200, 2000));
 		SIZE3840_2160.put("HIGHER_DIALOG_TEXT", new Rectangle(1850, 1010, 180, 50));
 		POSITION3840_2160.put("HIGHER_DIALOG_OK", new Dimension(1180, 2000));
+		POSITION3840_2160.put("QUICK_SELL_DIALOG_CANCEL", new Dimension(1210, 1980));
+		
 		
 		
 		POSITION3840_2160.put("TRANSFER", new Dimension(440, 70));
