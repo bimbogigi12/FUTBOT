@@ -54,8 +54,8 @@ public class Bot extends Thread {
 	String username = "";
 	String password = "";
 
-	int minMarketValue = 10000;
-	// int minMarketValue = 0;
+	//int minMarketValue = 10000;
+	int minMarketValue = 0;
 	int minOverall = 86;
 	int minDefaultOverall = 0;
 
@@ -472,6 +472,7 @@ public class Bot extends Thread {
 				int bidCOunt = 3 + (int) rnd;
 				logger.debug("trying " + bidCOunt + " bid");
 				for (int i = 0; i < bidCOunt; i++) {
+					checkDialog();
 					readCurrentMoney();
 					if (currentMoney > selectedPlayer.getBidToBuy()) {
 
