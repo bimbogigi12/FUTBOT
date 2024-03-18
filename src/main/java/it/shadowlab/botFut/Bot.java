@@ -9,6 +9,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Reader;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -54,7 +55,7 @@ public class Bot extends Thread {
 	String username = "";
 	String password = "";
 
-	//int minMarketValue = 10000;
+	// int minMarketValue = 10000;
 	int minMarketValue = 0;
 	int minOverall = 86;
 	int minDefaultOverall = 0;
@@ -67,10 +68,10 @@ public class Bot extends Thread {
 	boolean isResellingPlayersByMarket = false;
 
 	Config configs = null;
-	
+
 	Bot(Robot robot) {
 		this.robot = robot;
-		
+
 		int monitorSize = loadProperties();
 		if (monitorSize == 1) {
 			rectangles = Costant.SIZE1920_1080;
@@ -91,7 +92,7 @@ public class Bot extends Thread {
 
 	private int loadProperties() {
 		configs = new Config();
-		
+
 		int monitorSize = configs.getMonitorSize();
 		minDefaultOverall = configs.getMinOverall();
 		lastLoadPlayers = configs.getLastLoadPlayer();
@@ -423,6 +424,18 @@ public class Bot extends Thread {
 	}
 
 	private void auctPlayer() {
+
+		int levelBuy = 0;
+
+		Date now = new Date();
+		Calendar cal = Calendar.getInstance();
+		cal.setTime(now);
+		if (cal.get(Calendar.DAY_OF_WEEK) == Calendar.SUNDAY ) {
+			levelBuy = 3;
+		} else if (cal.get(Calendar.DAY_OF_WEEK) == Calendar.FRIDAY || cal.get(Calendar.DAY_OF_WEEK) == Calendar.SATURDAY) {
+			levelBuy = 1;
+		}
+
 		// click Transfer
 		Util.click(robot, positions.get("TRANSFER"));
 		Util.waitAction(500);
@@ -430,6 +443,24 @@ public class Bot extends Thread {
 		int remainingBid = 49 - getActualBid();
 
 		if (canBeTransferedPlayer(97) && remainingBid > 0) {
+			boolean canBuy = true;
+
+			switch (levelBuy) {
+			case 0:
+				break;
+			case 1:
+			case 2:
+				if (!canBeTransferedPlayer(90)) {
+					canBuy = false;
+				}
+				break;
+			case 3:
+				canBuy = false;
+				break;
+			}
+
+			if (!canBuy) return;
+			
 			String playerName = selectedPlayer.getName();
 			Stats stat = stats.get(playerName);
 			if (stat == null) {
@@ -494,7 +525,7 @@ public class Bot extends Thread {
 								Util.write(robot, String.valueOf(selectedPlayer.getBidToBuy()));
 								Util.waitAction(300);
 								Util.click(robot, positions.get("BID"));
-								
+
 								Util.waitAction(500);
 							}
 
@@ -724,12 +755,12 @@ public class Bot extends Thread {
 		try {
 			currentSelling = Util.convertToInt(selleingP.trim());
 
-			if (currentSelling < 50) {
-				minOverall = Math.max(minDefaultOverall, 84);
-			} else if (currentSelling < 70) {
+			if (currentSelling < 80) {
 				minOverall = Math.max(minDefaultOverall, 85);
-			} else if (currentSelling < 90) {
+			} else if (currentSelling < 85) {
 				minOverall = Math.max(minDefaultOverall, 86);
+			} else if (currentSelling < 90) {
+				minOverall = Math.max(minDefaultOverall, 87);
 			} else {
 				minOverall = Math.max(minDefaultOverall, 87);
 
